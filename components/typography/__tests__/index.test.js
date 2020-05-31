@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { asyncExpect } from '@/tests/utils';
+import { asyncExpect, sleep } from '@/tests/utils';
 import KeyCode from '../../_util/KeyCode';
 import copy from 'copy-to-clipboard';
 import Title from '../Title';
@@ -66,88 +66,90 @@ describe('Typography', () => {
 
   describe('Base', () => {
     describe('trigger ellipsis update', () => {
-      // const fullStr =
-      //   'Bamboo is Little Light Bamboo is Little Light Bamboo is Little Light Bamboo is Little Light Bamboo is Little Light';
+      const fullStr =
+        'Bamboo is Little Light Bamboo is Little Light Bamboo is Little Light Bamboo is Little Light Bamboo is Little Light';
 
-      // it('should trigger update', async () => {
-      //   const wrapper = mount({
-      //     render() {
-      //       return (
-      //         <Base ellipsis component="p" editable>
-      //           {fullStr}
-      //         </Base>
-      //       );
-      //     },
-      //   });
+      it('should trigger update', async () => {
+        const wrapper = mount(Base, {
+          propsData: {
+            ellipsis: true,
+            component: 'p',
+            editable: true,
+          },
+          slots: {
+            default: fullStr,
+          },
+        });
 
-      //   await Vue.nextTick();
-      //   expect(wrapper.find('span').text()).toEqual('Bamboo is Little ...');
+        await sleep(20);
 
-      //   wrapper.setProps({ ellipsis: { rows: 2 } });
-      //   await Vue.nextTick();
-      //   expect(wrapper.find('span').text()).toEqual('Bamboo is Little Light Bamboo is Litt...');
+        expect(wrapper.find('span').text()).toEqual('Bamboo is Little ...');
 
-      //   wrapper.setProps({ ellipsis: { rows: 99 } });
-      //   await Vue.nextTick();
-      //   expect(wrapper.find('p').text()).toEqual(fullStr);
-      // });
+        wrapper.setProps({ ellipsis: { rows: 2 } });
+        await sleep(20);
+        expect(wrapper.find('span').text()).toEqual('Bamboo is Little Light Bamboo is Litt...');
 
-      // it('should middle ellipsis', async () => {
-      //   const suffix = '--suffix';
-      //   const wrapper = mount({
-      //     render() {
-      //       return (
-      //         <Base ellipsis={{ rows: 1, suffix }} component="p">
-      //           {fullStr}
-      //         </Base>
-      //       );
-      //     },
-      //   });
+        wrapper.setProps({ ellipsis: { rows: 99 } });
+        await sleep(20);
+        expect(wrapper.find('p').text()).toEqual(fullStr);
+      });
 
-      //   await Vue.nextTick();
-      //   expect(wrapper.find('p').text()).toEqual('Bamboo is...--suffix');
-      // });
+      it('should middle ellipsis', async () => {
+        const suffix = '--suffix';
+        const wrapper = mount({
+          render() {
+            return (
+              <Base ellipsis={{ rows: 1, suffix }} component="p">
+                {fullStr}
+              </Base>
+            );
+          },
+        });
 
-      // it('connect children', async () => {
-      //   const bamboo = 'Bamboo';
-      //   const is = ' is ';
+        await sleep(20);
+        expect(wrapper.find('p').text()).toEqual('Bamboo is...--suffix');
+      });
 
-      //   const wrapper = mount({
-      //     render() {
-      //       return (
-      //         <Base ellipsis component="p" editable>
-      //           {bamboo}
-      //           {is}
-      //           <code>Little</code>
-      //           <code>Light</code>
-      //         </Base>
-      //       );
-      //     },
-      //   });
+      it('connect children', async () => {
+        const bamboo = 'Bamboo';
+        const is = ' is ';
 
-      //   await Vue.nextTick();
-      //   expect(wrapper.find('span').text()).toEqual('Bamboo is Little...');
-      // });
+        const wrapper = mount({
+          render() {
+            return (
+              <Base ellipsis component="p" editable>
+                {bamboo}
+                {is}
+                <code>Little</code>
+                <code>Light</code>
+              </Base>
+            );
+          },
+        });
 
-      // it('should expandable work', async () => {
-      //   const onExpand = jest.fn();
-      //   const wrapper = mount({
-      //     render() {
-      //       return (
-      //         <Base ellipsis={{ expandable: true, onExpand }} component="p" copyable editable>
-      //           {fullStr}
-      //         </Base>
-      //       );
-      //     },
-      //   });
+        await sleep(20);
+        expect(wrapper.find('span').text()).toEqual('Bamboo is Little...');
+      });
 
-      //   await Vue.nextTick();
-      //   wrapper.find('.ant-typography-expand').trigger('click');
-      //   expect(onExpand).toHaveBeenCalled();
-      //   await Vue.nextTick();
+      it('should expandable work', async () => {
+        const onExpand = jest.fn();
+        const wrapper = mount({
+          render() {
+            return (
+              <Base ellipsis={{ expandable: true, onExpand }} component="p" copyable editable>
+                {fullStr}
+              </Base>
+            );
+          },
+        });
 
-      //   expect(wrapper.find('p').text()).toEqual(fullStr);
-      // });
+        await sleep(20);
+        wrapper.find('.ant-typography-expand').trigger('click');
+        expect(onExpand).toHaveBeenCalled();
+        await sleep(20);
+
+        expect(wrapper.find('p').text()).toEqual(fullStr);
+      });
 
       it('can use css ellipsis', async () => {
         const wrapper = mount({
