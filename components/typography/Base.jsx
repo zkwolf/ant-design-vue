@@ -99,6 +99,11 @@ const Base = {
     }
     this.prevProps = { ...this.$props, children };
   },
+  watch: {
+    ellipsis() {
+      this.resizeOnNextFrame();
+    },
+  },
   methods: {
     // =============== Expand ===============
     onExpandClick() {
@@ -214,7 +219,7 @@ const Base = {
       const { ellipsisText, isEllipsis, expanded } = this;
       const { rows, suffix } = this.getEllipsis();
       const children = this.$slots.default;
-      const ref = this.$refs.typography.$el;
+      const ref = this.$refs.typography;
       if (!rows || rows < 0 || !ref || expanded) return;
 
       // Do not measure if css already support ellipsis
@@ -227,7 +232,7 @@ const Base = {
       );
 
       const { content, text, ellipsis } = measure(
-        ref,
+        ref.$el,
         { rows, suffix },
         children,
         this.renderOperations(true),
