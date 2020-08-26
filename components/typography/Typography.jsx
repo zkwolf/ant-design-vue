@@ -1,22 +1,20 @@
 import { ConfigConsumerProps } from '../config-provider';
-import { initDefaultProps } from '../_util/props-util';
+import { initDefaultProps, getSlot } from '../_util/props-util';
 import PropTypes from '../_util/vue-types';
-import Text from './Text';
-import Title from './Title';
-import Paragraph from './Paragraph';
+
+import { defineComponent, inject } from 'vue';
 
 export const TypographyProps = {
   component: PropTypes.string,
   prefixCls: PropTypes.string,
 };
 
-const Typography = {
+const Typography = defineComponent({
   name: 'ATypography',
-  Text,
-  Title,
-  Paragraph,
-  inject: {
-    configProvider: { default: () => ({}) },
+  setup() {
+    return {
+      configProvider: inject('configProvider', ConfigConsumerProps),
+    };
   },
   props: initDefaultProps(TypographyProps, {
     component: 'article',
@@ -25,10 +23,10 @@ const Typography = {
     const { getPrefixCls: customizePrefixCls, component: Component } = this.$props;
     const getPrefixCls = this.configProvider.getPrefixCls || ConfigConsumerProps.getPrefixCls;
     const prefixCls = getPrefixCls('typography', customizePrefixCls);
-    const children = this.$slots.default;
+    const children = getSlot(this);
 
     return <Component class={prefixCls}>{children}</Component>;
   },
-};
+});
 
 export default Typography;

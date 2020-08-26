@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { createApp } from 'vue';
 
 // We only handle element & text node.
 const ELEMENT_NODE = 1;
@@ -96,8 +96,7 @@ export default (originEle, option, content, fixedContent, ellipsisStr) => {
 
   // Render in the fake container
   const contentList = mergeChildren(toArray(content));
-  let vm = new Vue({
-    el: childElement,
+  let vm = createApp({
     render() {
       return (
         <div style={wrapperStyle}>
@@ -109,7 +108,7 @@ export default (originEle, option, content, fixedContent, ellipsisStr) => {
         </div>
       );
     },
-  });
+  }).mount(childElement);
 
   // Check if ellipsis in measure div is height enough for content
   function inRange() {

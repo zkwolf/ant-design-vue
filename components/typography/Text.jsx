@@ -7,28 +7,22 @@ const TextProps = {
   ellipsis: PropTypes.bool,
 };
 
-const Text = {
-  functional: true,
-  name: 'ATypographyText',
-  props: TextProps,
-  render(h, ctx) {
-    const { props, children, data } = ctx;
-    const { ellipsis } = props;
-    warning(
-      typeof ellipsis !== 'object',
-      'Typography.Text',
-      '`ellipsis` is only support boolean value.',
-    );
-    const textProps = {
-      ...data,
-      props: {
-        ...props,
-        ellipsis: !!ellipsis,
-        component: 'span',
-      },
-    };
-    return <Base {...textProps}>{children}</Base>;
-  },
+const Text = (props, { slots }) => {
+  const { ellipsis } = props;
+  warning(
+    typeof ellipsis !== 'object',
+    'Typography.Text',
+    '`ellipsis` is only support boolean value.',
+  );
+  const textProps = {
+    ...props,
+    ellipsis: !!ellipsis,
+    component: 'span',
+  };
+
+  return <Base {...textProps}>{slots.default?.()}</Base>;
 };
+
+Text.props = TextProps;
 
 export default Text;

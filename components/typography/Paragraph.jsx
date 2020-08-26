@@ -1,20 +1,14 @@
 import Base, { BlockProps } from './Base';
 
-const Paragraph = {
-  functional: true,
-  name: 'ATypographyParagraph',
-  props: BlockProps,
-  render(h, ctx) {
-    const { props, children, data } = ctx;
-    const paragraphProps = {
-      ...data,
-      props: {
-        ...props,
-        component: 'div',
-      },
-    };
-    return <Base {...paragraphProps}>{children}</Base>;
-  },
+const Paragraph = (props, { slots }) => {
+  const paragraphProps = {
+    ...props,
+    component: 'div',
+  };
+
+  return <Base {...paragraphProps}>{slots.default?.()}</Base>;
 };
+
+Paragraph.props = BlockProps;
 
 export default Paragraph;

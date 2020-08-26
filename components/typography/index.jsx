@@ -1,12 +1,13 @@
-import Base from '../base';
 import Typography from './Typography';
+import Text from './Text';
+import Title from './Title';
+import Paragraph from './Paragraph';
 
-Typography.install = function(Vue) {
-  Vue.use(Base);
-  Vue.component(Typography.name, Typography);
-  Vue.component(Typography.Text.name, Typography.Text);
-  Vue.component(Typography.Title.name, Typography.Title);
-  Vue.component(Typography.Paragraph.name, Typography.Paragraph);
+Typography.install = function(app) {
+  app.component(Typography.name, Typography);
+  app.component('ATypographyText', Text);
+  app.component('ATypographyTitle', Title);
+  app.component('ATypographyParagraph', Paragraph);
 };
 
 export default Typography;

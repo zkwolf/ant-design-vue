@@ -8,7 +8,6 @@ import Editable from './Editable';
 import measure from './util';
 import BaseMixin from '../_util/BaseMixin';
 import PropTypes from '../_util/vue-types';
-import Fragment from '../_util/Fragment';
 import Typography, { TypographyProps } from './Typography';
 import ResizeObserver from '../vc-resize-observer';
 import Tooltip from '../tooltip';
@@ -17,6 +16,8 @@ import { ConfigConsumerProps } from '../config-provider';
 import CheckOutlined from '@ant-design/icons-vue/CheckOutlined';
 import CopyOutlined from '@ant-design/icons-vue/CopyOutlined';
 import EditOutlined from '@ant-design/icons-vue/EditOutlined';
+import { getSlot } from '../_util/props-util';
+import { inject, h } from 'vue';
 
 const isLineClampSupport = isStyleSupport('webkitLineClamp');
 const isTextOverflowSupport = isStyleSupport('textOverflow');
@@ -57,8 +58,10 @@ const Base = {
     delete: PropTypes.bool,
     strong: PropTypes.bool,
   },
-  inject: {
-    configProvider: { default: () => ConfigConsumerProps },
+  setup() {
+    return {
+      configProvider: inject('configProvider', ConfigConsumerProps),
+    };
   },
   data() {
     return {
@@ -85,14 +88,14 @@ const Base = {
     raf.cancel(this.rafId);
   },
   mounted() {
-    this.prevProps = { ...this.$props, children: this.$slots.default };
+    this.prevProps = { ...this.$props, children: getSlot(this) };
     this.setState({ clientRendered: true });
     this.resizeOnNextFrame();
   },
   updated() {
     const ellipsis = this.getEllipsis();
     const prevEllipsis = this.getEllipsis(this.prevProps);
-    const children = this.$slots.default;
+    const children = getSlot(this);
 
     if (children !== this.prevProps.children || ellipsis.rows !== prevEllipsis.rows) {
       this.resizeOnNextFrame();
@@ -134,7 +137,7 @@ const Base = {
     // ================ Copy ================
     onCopyClick() {
       const { copyable } = this.$props;
-      const children = this.$slots.default;
+      const children = getSlot(this);
 
       const copyConfig = {
         ...(typeof copyable === 'object' ? copyable : null),
@@ -218,7 +221,7 @@ const Base = {
     syncEllipsis() {
       const { ellipsisText, isEllipsis, expanded } = this;
       const { rows, suffix } = this.getEllipsis();
-      const children = this.$slots.default;
+      const children = getSlot(this);
       const ref = this.$refs.typography;
       if (!rows || rows < 0 || !ref || expanded) return;
 
@@ -244,12 +247,11 @@ const Base = {
     },
     wrapperDecorations({ mark, code, underline, delete: del, strong }, content) {
       let currentContent = content;
-      let that = this;
 
       function wrap(needed, tag) {
         if (!needed) return;
 
-        currentContent = that.$createElement(tag, currentContent);
+        currentContent = h(tag, currentContent);
       }
 
       wrap(strong, 'strong');
@@ -320,7 +322,7 @@ const Base = {
     },
     renderEditInput() {
       const prefixCls = this.getPrefixCls();
-      const children = this.$slots.default;
+      const children = getSlot(this);
       const value = children[0] && !children[0].tag && children[0].text;
 
       return (
@@ -343,10 +345,10 @@ const Base = {
       return getPrefixCls('typography', customizePrefixCls);
     },
     renderContent(locale) {
-      const { ellipsisContent, isEllipsis, expanded, $props, $slots, $attrs } = this;
+      const { ellipsisContent, isEllipsis, expanded, $props, $attrs } = this;
       const { component, type, disabled, style, title, ...restProps } = $props;
       const { ['aria-label']: customAriaLabel } = $attrs;
-      const children = $slots.default;
+      const children = getSlot(this);
       const { rows, suffix } = this.getEllipsis();
 
       this.editStr = locale.edit;
@@ -391,10 +393,10 @@ const Base = {
         );
       } else {
         textNode = (
-          <Fragment>
+          <>
             {children}
             {suffix}
-          </Fragment>
+          </>
         );
       }
 
@@ -430,7 +432,7 @@ const Base = {
   },
   render() {
     const { editable } = this.$props;
-    const children = this.$slots.default;
+    const children = getSlot(this);
 
     warning(
       !editable || children.every(child => !child.tag && !!child.text),
@@ -442,7 +444,7 @@ const Base = {
     if (editing) {
       return this.renderEditInput();
     }
-    return <LocaleReceiver componentName="Text" scopedSlots={{ default: this.renderContent }} />;
+    return <LocaleReceiver componentName="Text" children={this.renderContent} />;
   },
 };
 
