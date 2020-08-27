@@ -398,7 +398,7 @@ const Base = {
       if (rows && isEllipsis && !expanded && !cssEllipsis) {
         ariaLabel = title;
         if (!title && children.every(item => typeof item.children === 'string')) {
-          ariaLabel = children.map(item => item.children);
+          ariaLabel = children.map(item => item.children).reduce((cur, prev) => cur + prev, '');
         }
         // We move full content to outer element to avoid repeat read the content by accessibility
         textNode = (
