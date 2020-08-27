@@ -16,7 +16,6 @@ import { ConfigConsumerProps } from '../config-provider';
 import CheckOutlined from '@ant-design/icons-vue/CheckOutlined';
 import CopyOutlined from '@ant-design/icons-vue/CopyOutlined';
 import EditOutlined from '@ant-design/icons-vue/EditOutlined';
-import { getSlot } from '../_util/props-util';
 import { inject, h } from 'vue';
 
 const isLineClampSupport = isStyleSupport('webkitLineClamp');
@@ -49,6 +48,7 @@ const Base = {
     copyable: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
     prefixCls: PropTypes.string,
     component: PropTypes.string,
+    children: PropTypes.any,
     type: PropTypes.oneOf(['secondary', 'danger', 'warning']),
     disabled: PropTypes.bool,
     ellipsis: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
@@ -88,14 +88,14 @@ const Base = {
     raf.cancel(this.rafId);
   },
   mounted() {
-    this.prevProps = { ...this.$props, children: getSlot(this) };
+    this.prevProps = { ...this.$props };
     this.setState({ clientRendered: true });
     this.resizeOnNextFrame();
   },
   updated() {
     const ellipsis = this.getEllipsis();
     const prevEllipsis = this.getEllipsis(this.prevProps);
-    const children = getSlot(this);
+    const children = this.children;
 
     if (children !== this.prevProps.children || ellipsis.rows !== prevEllipsis.rows) {
       this.resizeOnNextFrame();
@@ -108,6 +108,13 @@ const Base = {
     },
   },
   methods: {
+    saveTypographyRef(node) {
+      this.typography = node;
+    },
+
+    saveEditIconRef(node) {
+      this.editIcon = node;
+    },
     // =============== Expand ===============
     onExpandClick() {
       const { onExpand } = this.getEllipsis();
@@ -136,15 +143,14 @@ const Base = {
 
     // ================ Copy ================
     onCopyClick() {
-      const { copyable } = this.$props;
-      const children = getSlot(this);
+      const { copyable, children } = this.$props;
 
       const copyConfig = {
         ...(typeof copyable === 'object' ? copyable : null),
       };
 
       if (copyConfig.text === undefined) {
-        copyConfig.text = children.length !== 0 ? children[0].text : '';
+        copyConfig.text = children.length !== 0 ? children[0].children : '';
       }
 
       copy(copyConfig.text || '');
@@ -188,7 +194,7 @@ const Base = {
 
       this.setState({ edit }, () => {
         if (!edit) {
-          this.$refs.editIcon.focus();
+          this.editIcon.focus();
         }
       });
     },
@@ -219,17 +225,16 @@ const Base = {
       return isLineClampSupport;
     },
     syncEllipsis() {
-      const { ellipsisText, isEllipsis, expanded } = this;
-      const { rows, suffix } = this.getEllipsis();
-      const children = getSlot(this);
-      const ref = this.$refs.typography;
+      const { ellipsisText, isEllipsis, expanded, children } = this;
+      const { rows, suffix, onEllipsis } = this.getEllipsis();
+      const ref = this.typography;
       if (!rows || rows < 0 || !ref || expanded) return;
 
       // Do not measure if css already support ellipsis
       if (this.canUseCSSEllipsis()) return;
 
       warning(
-        children.every(child => !child.tag && !!child.text),
+        children.every(child => typeof child.children === 'string'),
         'Typography',
         '`ellipsis` should use string as children only.',
       );
@@ -243,9 +248,12 @@ const Base = {
       );
       if (ellipsisText !== text || isEllipsis !== ellipsis) {
         this.setState({ ellipsisText: text, ellipsisContent: content, isEllipsis: ellipsis });
+        if (isEllipsis !== ellipsis && onEllipsis) {
+          onEllipsis(ellipsis);
+        }
       }
     },
-    wrapperDecorations({ mark, code, underline, delete: del, strong }, content) {
+    wrapperDecorations({ mark, code, underline, delete: del, strong, keyboard }, content) {
       let currentContent = content;
 
       function wrap(needed, tag) {
@@ -259,11 +267,12 @@ const Base = {
       wrap(del, 'del');
       wrap(code, 'code');
       wrap(mark, 'mark');
+      wrap(keyboard, 'kbd');
 
       return currentContent;
     },
     renderExpand(forceRender) {
-      const { expandable } = this.getEllipsis();
+      const { expandable, symbol } = this.getEllipsis();
       const prefixCls = this.getPrefixCls();
       const { expanded, isEllipsis } = this;
 
@@ -272,6 +281,13 @@ const Base = {
       // force render expand icon for measure usage or it will cause dead loop
       if (!forceRender && (expanded || !isEllipsis)) return null;
 
+      let expandContent;
+      if (symbol) {
+        expandContent = symbol;
+      } else {
+        expandContent = this.expandStr;
+      }
+
       return (
         <a
           key="expand"
@@ -279,7 +295,7 @@ const Base = {
           onClick={this.onExpandClick}
           aria-label={this.expandStr}
         >
-          {this.expandStr}
+          {expandContent}
         </a>
       );
     },
@@ -291,7 +307,7 @@ const Base = {
       return (
         <Tooltip key="edit" title={this.editStr}>
           <TransButton
-            ref="editIcon"
+            ref={this.saveEditIconRef}
             class={`${prefixCls}-edit`}
             onClick={this.onEditClick}
             aria-label={this.editStr}
@@ -307,9 +323,11 @@ const Base = {
       if (!copyable) return;
 
       const prefixCls = this.getPrefixCls();
+
+      const { tooltips } = copyable;
       const title = copied ? this.copiedStr : this.copyStr;
       return (
-        <Tooltip title={title}>
+        <Tooltip key="copy" title={tooltips === false ? '' : title}>
           <TransButton
             class={[`${prefixCls}-copy`, { [`${prefixCls}-copy-success`]: copied }]}
             onClick={this.onCopyClick}
@@ -322,8 +340,9 @@ const Base = {
     },
     renderEditInput() {
       const prefixCls = this.getPrefixCls();
-      const children = getSlot(this);
-      const value = children[0] && !children[0].tag && children[0].text;
+      const { children } = this.$props;
+
+      const value = children[0] && children[0].children;
 
       return (
         <Editable
@@ -340,15 +359,14 @@ const Base = {
       );
     },
     getPrefixCls() {
-      const { customizePrefixCls } = this;
+      const { prefixCls: customizePrefixCls } = this;
       const getPrefixCls = this.configProvider.getPrefixCls;
       return getPrefixCls('typography', customizePrefixCls);
     },
     renderContent(locale) {
       const { ellipsisContent, isEllipsis, expanded, $props, $attrs } = this;
-      const { component, type, disabled, style, title, ...restProps } = $props;
+      const { component, type, disabled, style, title, children, ...restProps } = $props;
       const { ['aria-label']: customAriaLabel } = $attrs;
-      const children = getSlot(this);
       const { rows, suffix } = this.getEllipsis();
 
       this.editStr = locale.edit;
@@ -362,12 +380,11 @@ const Base = {
         'copyable',
         'ellipsis',
         'mark',
-        'underline',
-        'mark',
         'code',
         'delete',
         'underline',
         'strong',
+        'keybard',
       ]);
 
       const cssEllipsis = this.canUseCSSEllipsis();
@@ -380,8 +397,8 @@ const Base = {
       // Only use js ellipsis when css ellipsis not support
       if (rows && isEllipsis && !expanded && !cssEllipsis) {
         ariaLabel = title;
-        if (!title && children.every(item => !item.tag && item.text)) {
-          ariaLabel = children.map(item => item.text);
+        if (!title && children.every(item => typeof item.children === 'string')) {
+          ariaLabel = children.map(item => item.children);
         }
         // We move full content to outer element to avoid repeat read the content by accessibility
         textNode = (
@@ -407,7 +424,7 @@ const Base = {
       return (
         <ResizeObserver onResize={this.resizeOnNextFrame} disabled={!rows}>
           <Typography
-            ref="typography"
+            ref={this.saveTypographyRef}
             class={[
               { [`${prefixCls}-${type}`]: type },
               { [`${prefixCls}-disabled`]: disabled },
@@ -431,11 +448,10 @@ const Base = {
     },
   },
   render() {
-    const { editable } = this.$props;
-    const children = getSlot(this);
+    const { editable, children } = this.$props;
 
     warning(
-      !editable || children.every(child => !child.tag && !!child.text),
+      !editable || typeof (children && children[0].children) === 'string',
       'Typography',
       'When `editable` is enabled, the `children` should use string.',
     );

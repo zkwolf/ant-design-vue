@@ -2,12 +2,12 @@ import warning from '../_util/warning';
 import Base, { BlockProps } from './Base';
 import PropTypes from '../_util/vue-types';
 
-const TextProps = {
+const LinkProps = {
   ...BlockProps,
   ellipsis: PropTypes.bool,
 };
 
-const Text = (props, { slots }) => {
+const Link = (props, { slots }) => {
   const { ellipsis } = props;
   warning(
     typeof ellipsis !== 'object',
@@ -24,6 +24,6 @@ const Text = (props, { slots }) => {
   return <Base {...textProps}></Base>;
 };
 
-Text.props = TextProps;
+Link.props = LinkProps;
 
-export default Text;
+export default Link;

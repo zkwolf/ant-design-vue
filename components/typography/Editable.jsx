@@ -9,12 +9,15 @@ const Editable = {
   props: {
     prefixCls: PropTypes.string,
     value: PropTypes.string,
+    onSave: PropTypes.func,
+    onCancel: PropTypes.func,
   },
   data() {
     return {
       current: this.value || '',
       lastKeyCode: undefined,
       inComposition: false,
+      cancelFlag: false,
     };
   },
   watch: {
@@ -23,14 +26,16 @@ const Editable = {
     },
   },
   mounted() {
-    const textArea = this.$refs.textarea;
-    const resizableTextArea = textArea.$refs.resizableTextArea;
-    const innerTextArea = resizableTextArea.$refs.textArea;
+    const resizableTextArea = this.textArea?.resizableTextArea;
+    const innerTextArea = resizableTextArea?.textArea;
     innerTextArea.focus();
     const { length } = innerTextArea.value;
     innerTextArea.setSelectionRange(length, length);
   },
   methods: {
+    saveTextAreaRef(node) {
+      this.textArea = node;
+    },
     onChange({ target: { value } }) {
       this.setState({ current: value.replace(/[\r\n]/g, '') });
     },
@@ -40,13 +45,20 @@ const Editable = {
     onCompositionEnd() {
       this.inComposition = false;
     },
-    onKeyDown({ keyCode }) {
+    onKeyDown(e) {
+      const { keyCode } = e;
       // We don't record keyCode when IME is using
       if (this.inComposition) return;
 
+      if (keyCode === KeyCode.ENTER) {
+        e.preventDefault();
+      }
+
       this.lastKeyCode = keyCode;
     },
-    onKeyUp({ keyCode, ctrlKey, altKey, metaKey, shiftKey }) {
+    onKeyUp(e) {
+      const { keyCode, ctrlKey, altKey, metaKey, shiftKey } = e;
+
       // Check if it's a real key
       if (
         this.lastKeyCode === keyCode &&
@@ -59,13 +71,16 @@ const Editable = {
         if (keyCode === KeyCode.ENTER) {
           this.confirmChange();
         } else if (keyCode === KeyCode.ESC) {
+          this.cancelFlag = true;
           this.$emit('cancel');
         }
       }
     },
 
     onBlur() {
-      this.confirmChange();
+      if (!this.cancelFlag) {
+        this.confirmChange();
+      }
     },
 
     confirmChange() {
@@ -80,7 +95,7 @@ const Editable = {
     return (
       <div class={`${prefixCls} ${prefixCls}-edit-content`}>
         <TextArea
-          ref="textarea"
+          ref={this.saveTextAreaRef}
           value={current}
           onChange={this.onChange}
           onKeydown={this.onKeyDown}

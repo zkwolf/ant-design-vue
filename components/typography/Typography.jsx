@@ -21,7 +21,7 @@ const Typography = defineComponent({
   }),
   render() {
     const { getPrefixCls: customizePrefixCls, component: Component } = this.$props;
-    const getPrefixCls = this.configProvider.getPrefixCls || ConfigConsumerProps.getPrefixCls;
+    const getPrefixCls = this.configProvider.getPrefixCls;
     const prefixCls = getPrefixCls('typography', customizePrefixCls);
     const children = getSlot(this);
 

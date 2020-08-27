@@ -89,14 +89,9 @@ export default (originEle, option, content, fixedContent, ellipsisStr) => {
   ellipsisContainer.style.whiteSpace = 'normal';
   ellipsisContainer.style.webkitLineClamp = 'none';
 
-  const childElement = document.createElement('div');
-  ellipsisContainer.innerHTML = '';
-
-  ellipsisContainer.appendChild(childElement);
-
   // Render in the fake container
   const contentList = mergeChildren(toArray(content));
-  let vm = createApp({
+  const vm = createApp({
     render() {
       return (
         <div style={wrapperStyle}>
@@ -108,7 +103,9 @@ export default (originEle, option, content, fixedContent, ellipsisStr) => {
         </div>
       );
     },
-  }).mount(childElement);
+  });
+
+  vm.mount(ellipsisContainer);
 
   // Check if ellipsis in measure div is height enough for content
   function inRange() {
@@ -117,7 +114,7 @@ export default (originEle, option, content, fixedContent, ellipsisStr) => {
 
   // Skip ellipsis if already match
   if (inRange()) {
-    vm.$destroy();
+    vm.unmount();
     return { content, text: ellipsisContainer.innerHTML, ellipsis: false };
   }
 
@@ -129,7 +126,7 @@ export default (originEle, option, content, fixedContent, ellipsisStr) => {
     ellipsisContainer.childNodes[0].childNodes[1].cloneNode(true).childNodes,
   );
 
-  vm.$destroy();
+  vm.unmount();
 
   // ========================= Find match ellipsis content =========================
   const ellipsisChildren = [];

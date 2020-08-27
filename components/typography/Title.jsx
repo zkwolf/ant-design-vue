@@ -3,7 +3,7 @@ import warning from '../_util/warning';
 import Base, { BlockProps } from './Base';
 import omit from 'omit.js';
 
-const TITLE_ELE_LIST = [1, 2, 3, 4];
+const TITLE_ELE_LIST = [1, 2, 3, 4, 5];
 
 const TitleProps = {
   ...omit(BlockProps, ['strong']),
@@ -16,16 +16,17 @@ const Title = (props, { slots }) => {
   if (TITLE_ELE_LIST.indexOf(level) !== -1) {
     component = `h${level}`;
   } else {
-    warning(false, 'Typography', 'Title only accept `1 | 2 | 3 | 4` as `level` value.');
+    warning(false, 'Typography', 'Title only accept `1 | 2 | 3 | 4 | 5` as `level` value.');
     component = 'h1';
   }
 
   const titleProps = {
     ...restProps,
+    children: slots.default?.(),
     component,
   };
 
-  return <Base {...titleProps}>{slots.default?.()}</Base>;
+  return <Base {...titleProps}></Base>;
 };
 
 Title.props = TitleProps;

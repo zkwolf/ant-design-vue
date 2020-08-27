@@ -6,13 +6,14 @@
 // =============== Basic ===============
 .@{typography-prefix-cls} {
   color: @text-color;
-
-  &-rtl {
-    direction: rtl;
-  }
+  overflow-wrap: break-word;
 
   &&-secondary {
     color: @text-color-secondary;
+  }
+
+  &&-success {
+    color: @success-color;
   }
 
   &&-warning {
@@ -51,11 +52,15 @@
   h4 {
     .typography-title-4();
   }
+  h5&,
+  h5 {
+    .typography-title-5();
+  }
 
   h1&,
   h2&,
   h3&,
-  h4& {
+  h4& h5& {
     .@{typography-prefix-cls} + & {
       margin-top: @typography-title-margin-top;
     }
@@ -68,19 +73,23 @@
   h1,
   h2,
   h3,
-  h4 {
+  h4,
+  h5 {
     + h1,
     + h2,
     + h3,
-    + h4 {
+    + h4,
+    + h5 {
       margin-top: @typography-title-margin-top;
     }
   }
 
+  a&-ellipsis,
   span&-ellipsis {
     display: inline-block;
   }
 
+  a&,
   a {
     .operation-unit();
 
@@ -102,6 +111,16 @@
     font-size: 85%;
     background: rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 3px;
+  }
+
+  kbd {
+    margin: 0 0.2em;
+    padding: 0.15em 0.4em 0.1em;
+    font-size: 90%;
+    background: rgba(150, 150, 150, 0.06);
+    border: 1px solid rgba(100, 100, 100, 0.2);
+    border-bottom-width: 2px;
     border-radius: 3px;
   }
 
@@ -131,12 +150,7 @@
   &-copy {
     .operation-unit();
 
-    margin-left: 8px;
-
-    .@{typography-prefix-cls}-rtl & {
-      margin-right: 8px;
-      margin-left: 0;
-    }
+    margin-left: 4px;
   }
 
   &-copy-success {
@@ -155,12 +169,7 @@
       left: -@input-padding-horizontal - 1px;
       margin-top: -@input-padding-vertical-base - 1px;
       // stylelint-disable-next-line function-calc-no-invalid
-      margin-bottom: calc(1em - @input-padding-vertical-base - 2px);
-
-      &.@{typography-prefix-cls}-rtl {
-        right: -@input-padding-horizontal - 1px;
-        left: auto;
-      }
+      margin-bottom: calc(1em - @input-padding-vertical-base - 1px);
     }
 
     &-confirm {
@@ -191,23 +200,18 @@
     li {
       margin: 0 0 0 20px;
       padding: 0 0 0 4px;
-
-      .@{typography-prefix-cls}-rtl& {
-        margin: 0 20px 0 0;
-        padding: 0 4px 0 0;
-      }
     }
   }
 
-  ul li {
+  ul {
     list-style-type: circle;
 
-    li {
+    ul {
       list-style-type: disc;
     }
   }
 
-  ol li {
+  ol {
     list-style-type: decimal;
   }
 
@@ -216,6 +220,12 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+
+    // https://blog.csdn.net/iefreer/article/details/50421025
+    a&,
+    span& {
+      vertical-align: bottom;
+    }
   }
 
   &-ellipsis-multiple-line {
