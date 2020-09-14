@@ -65,16 +65,16 @@ describe('Typography', () => {
           },
         });
 
-        await nextTick();
+        await sleep(20);
 
         expect(wrapper.find('span').text()).toEqual('Bamboo is Little ...');
 
         wrapper.setProps({ ellipsis: { rows: 2 } });
-        await nextTick();
+        await sleep(20);
         expect(wrapper.find('span').text()).toEqual('Bamboo is Little Light Bamboo is Litt...');
 
         wrapper.setProps({ ellipsis: { rows: 99 } });
-        await nextTick();
+        await sleep(20);
         expect(wrapper.find('p').text()).toEqual(fullStr);
       });
 
@@ -88,8 +88,7 @@ describe('Typography', () => {
           },
         });
 
-        await nextTick();
-        console.log(wrapper.html());
+        await sleep(20);
         expect(wrapper.find('p').text()).toEqual('Bamboo is...--suffix');
       });
 
@@ -111,7 +110,7 @@ describe('Typography', () => {
           },
         });
 
-        await nextTick();
+        await sleep(20);
         expect(wrapper.find('span').text()).toEqual('Bamboo is Little...');
       });
 
@@ -146,7 +145,7 @@ describe('Typography', () => {
           },
         });
 
-        await nextTick();
+        await sleep(20);
         expect(wrapper.findAll('.ant-typography-ellipsis-single-line').length).toBeTruthy();
       });
     });
