@@ -21,6 +21,16 @@ import { inject, h } from 'vue';
 const isLineClampSupport = isStyleSupport('webkitLineClamp');
 const isTextOverflowSupport = isStyleSupport('textOverflow');
 
+function toArray(value) {
+  let ret = value;
+  if (value === undefined) {
+    ret = [];
+  } else if (!Array.isArray(value)) {
+    ret = [value];
+  }
+  return ret;
+}
+
 export const BlockProps = {
   ...TypographyProps,
   title: PropTypes.string,
@@ -36,6 +46,7 @@ export const BlockProps = {
   underline: PropTypes.bool,
   delete: PropTypes.bool,
   strong: PropTypes.bool,
+  keyboard: PropTypes.bool,
 };
 
 const ELLIPSIS_STR = '...';
@@ -57,6 +68,7 @@ const Base = {
     underline: PropTypes.bool,
     delete: PropTypes.bool,
     strong: PropTypes.bool,
+    keyboard: PropTypes.bool,
   },
   setup() {
     return {
@@ -301,18 +313,23 @@ const Base = {
     },
     renderEdit() {
       const { editable } = this.$props;
-      const prefixCls = this.getPrefixCls();
       if (!editable) return;
 
+      const prefixCls = this.getPrefixCls();
+      const { icon, tooltip } = editable;
+
+      const title = tooltip || this.editStr;
+      const ariaLabel = typeof title === 'string' ? title : '';
+
       return (
-        <Tooltip key="edit" title={this.editStr}>
+        <Tooltip key="edit" title={tooltip === false ? '' : title}>
           <TransButton
             ref={this.saveEditIconRef}
             class={`${prefixCls}-edit`}
             onClick={this.onEditClick}
-            aria-label={this.editStr}
+            aria-label={ariaLabel}
           >
-            <EditOutlined role="button" />
+            {icon || <EditOutlined role="button" />}
           </TransButton>
         </Tooltip>
       );
@@ -325,15 +342,22 @@ const Base = {
       const prefixCls = this.getPrefixCls();
 
       const { tooltips } = copyable;
-      const title = copied ? this.copiedStr : this.copyStr;
+      let tooltipNodes = toArray(tooltips);
+      if (tooltipNodes.length === 0) {
+        tooltipNodes = [this.copyStr, this.copiedStr];
+      }
+      const title = copied ? tooltipNodes[1] : tooltipNodes[0];
+      const ariaLabel = typeof title === 'string' ? title : '';
+      const icons = toArray(copyable.icon);
+
       return (
         <Tooltip key="copy" title={tooltips === false ? '' : title}>
           <TransButton
             class={[`${prefixCls}-copy`, { [`${prefixCls}-copy-success`]: copied }]}
             onClick={this.onCopyClick}
-            aria-label={title}
+            aria-label={ariaLabel}
           >
-            {copied ? <CheckOutlined /> : <CopyOutlined />}
+            {copied ? icons[1] || <CheckOutlined /> : icons[0] || <CopyOutlined />}
           </TransButton>
         </Tooltip>
       );
@@ -341,6 +365,7 @@ const Base = {
     renderEditInput() {
       const prefixCls = this.getPrefixCls();
       const { children } = this.$props;
+      const { maxlength, autosize } = this.getEditable();
 
       const value = children[0] && children[0].children;
 
@@ -350,6 +375,8 @@ const Base = {
           onSave={this.onEditChange}
           onCancel={this.onEditCancel}
           prefixCls={prefixCls}
+          maxlength={maxlength}
+          autoSize={autosize}
         />
       );
     },

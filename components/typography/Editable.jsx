@@ -9,6 +9,8 @@ const Editable = {
   props: {
     prefixCls: PropTypes.string,
     value: PropTypes.string,
+    maxlength: PropTypes.number,
+    autoSize: PropTypes.oneOf[(PropTypes.bool, PropTypes.object)],
     onSave: PropTypes.func,
     onCancel: PropTypes.func,
   },
@@ -90,12 +92,13 @@ const Editable = {
   },
   render() {
     const { current } = this;
-    const { prefixCls } = this.$props;
+    const { prefixCls, maxlength, autoSize } = this.$props;
 
     return (
       <div class={`${prefixCls} ${prefixCls}-edit-content`}>
         <TextArea
           ref={this.saveTextAreaRef}
+          maxlength={maxlength}
           value={current}
           onChange={this.onChange}
           onKeydown={this.onKeyDown}
@@ -103,7 +106,7 @@ const Editable = {
           onCompositionStart={this.onCompositionStart}
           onCompositionEnd={this.onCompositionEnd}
           onBlur={this.onBlur}
-          autoSize
+          autoSize={autoSize === undefined || autoSize}
         />
         <EnterOutlined class={`${prefixCls}-edit-content-confirm`} />
       </div>
