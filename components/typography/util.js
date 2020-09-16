@@ -121,7 +121,7 @@ export default (originEle, option, content, fixedContent, ellipsisStr) => {
   // We should clone the childNode since they're controlled by React and we can't reuse it without warning
   const childNodes = Array.prototype.slice
     .apply(ellipsisContainer.childNodes[0].childNodes[0].cloneNode(true).childNodes)
-    .filter(({ nodeType }) => nodeType !== COMMENT_NODE);
+    .filter(({ nodeType, data }) => nodeType !== COMMENT_NODE && data !== '');
   const fixedNodes = Array.prototype.slice.apply(
     ellipsisContainer.childNodes[0].childNodes[1].cloneNode(true).childNodes,
   );
@@ -213,7 +213,6 @@ export default (originEle, option, content, fixedContent, ellipsisStr) => {
     }
 
     // Not handle other type of content
-    // PS: This code should not be attached after react 16
     return {
       finished: false,
       vNode: null,
