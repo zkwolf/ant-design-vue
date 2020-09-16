@@ -11,5 +11,6 @@ const Paragraph = (props, { slots }) => {
 };
 
 Paragraph.props = BlockProps;
+Paragraph.displayName = 'ATypographyParagraph';
 
 export default Paragraph;

@@ -5,9 +5,9 @@ import Paragraph from './Paragraph';
 
 Typography.install = function(app) {
   app.component(Typography.name, Typography);
-  app.component('ATypographyText', Text);
-  app.component('ATypographyTitle', Title);
-  app.component('ATypographyParagraph', Paragraph);
+  app.component(Text.displayName, Text);
+  app.component(Title.displayName, Title);
+  app.component(Paragraph.displayName, Paragraph);
 };
 
 export default Typography;

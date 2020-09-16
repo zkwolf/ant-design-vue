@@ -25,5 +25,6 @@ const Text = (props, { slots }) => {
 };
 
 Text.props = TextProps;
+Text.displayName = 'ATypographyText';
 
 export default Text;

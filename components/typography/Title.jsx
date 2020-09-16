@@ -30,5 +30,6 @@ const Title = (props, { slots }) => {
 };
 
 Title.props = TitleProps;
+Title.displayName = 'ATypographyTilte';
 
 export default Title;
