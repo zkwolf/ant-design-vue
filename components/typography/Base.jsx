@@ -16,7 +16,7 @@ import { ConfigConsumerProps } from '../config-provider';
 import CheckOutlined from '@ant-design/icons-vue/CheckOutlined';
 import CopyOutlined from '@ant-design/icons-vue/CopyOutlined';
 import EditOutlined from '@ant-design/icons-vue/EditOutlined';
-import { inject, h } from 'vue';
+import { inject } from 'vue';
 
 const isLineClampSupport = isStyleSupport('webkitLineClamp');
 const isTextOverflowSupport = isStyleSupport('textOverflow');
@@ -268,10 +268,10 @@ const Base = {
     wrapperDecorations({ mark, code, underline, delete: del, strong, keyboard }, content) {
       let currentContent = content;
 
-      function wrap(needed, tag) {
+      function wrap(needed, Tag) {
         if (!needed) return;
 
-        currentContent = h(tag, currentContent);
+        currentContent = <Tag>{currentContent}</Tag>;
       }
 
       wrap(strong, 'strong');
