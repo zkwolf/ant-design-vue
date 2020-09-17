@@ -16,6 +16,7 @@ import { ConfigConsumerProps } from '../config-provider';
 import CheckOutlined from '@ant-design/icons-vue/CheckOutlined';
 import CopyOutlined from '@ant-design/icons-vue/CopyOutlined';
 import EditOutlined from '@ant-design/icons-vue/EditOutlined';
+import { getOptionProps } from '../_util/props-util';
 import { inject } from 'vue';
 
 const isLineClampSupport = isStyleSupport('webkitLineClamp');
@@ -53,6 +54,7 @@ const ELLIPSIS_STR = '...';
 
 const Base = {
   name: 'Base',
+  inheritAttrs: false,
   mixins: [BaseMixin],
   props: {
     editable: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
@@ -365,18 +367,21 @@ const Base = {
     renderEditInput() {
       const prefixCls = this.getPrefixCls();
       const { children } = this.$props;
+      const { class: className, style } = this.$attrs;
       const { maxlength, autosize } = this.getEditable();
 
       const value = children[0] && children[0].children;
 
       return (
         <Editable
-          value={value}
-          onSave={this.onEditChange}
-          onCancel={this.onEditCancel}
+          class={className}
+          style={style}
           prefixCls={prefixCls}
+          value={value}
           maxlength={maxlength}
           autoSize={autosize}
+          onSave={this.onEditChange}
+          onCancel={this.onEditCancel}
         />
       );
     },
@@ -391,9 +396,18 @@ const Base = {
       return getPrefixCls('typography', customizePrefixCls);
     },
     renderContent(locale) {
-      const { ellipsisContent, isEllipsis, expanded, $props, $attrs } = this;
-      const { component, type, disabled, style, title, children, ...restProps } = $props;
-      const { ['aria-label']: customAriaLabel } = $attrs;
+      const { ellipsisContent, isEllipsis, expanded, $attrs } = this;
+      const props = { ...getOptionProps(this), ...$attrs };
+      const {
+        type,
+        disabled,
+        title,
+        children,
+        ['aria-label']: customAriaLabel,
+        class: className,
+        style,
+        ...restProps
+      } = props;
       const { rows, suffix } = this.getEllipsis();
 
       this.editStr = locale.edit;
@@ -458,12 +472,12 @@ const Base = {
               { [`${prefixCls}-ellipsis`]: rows },
               { [`${prefixCls}-ellipsis-single-line`]: cssTextOverflow },
               { [`${prefixCls}-ellipsis-multiple-line`]: cssLineClamp },
+              className,
             ]}
             style={{
               ...style,
               WebkitLineClamp: cssLineClamp ? rows : null,
             }}
-            component={component}
             aria-label={customAriaLabel || ariaLabel}
             {...textProps}
           >
