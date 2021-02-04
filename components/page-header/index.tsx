@@ -110,6 +110,7 @@ const PageHeader = defineComponent({
     const props = getOptionProps(this) as ExtractPropTypes<typeof PageHeaderProps>;
     const { prefixCls: customizePrefixCls, breadcrumb } = props;
     const footer = getComponent(this, 'footer');
+    const breadcrumbRender = getSlot(this, 'breadcrumbRender');
     const children = getSlot(this);
     let ghost = true;
 
@@ -120,7 +121,9 @@ const PageHeader = defineComponent({
       ghost = pageHeader.ghost;
     }
     const prefixCls = getPrefixCls('page-header', customizePrefixCls);
-    const breadcrumbDom = breadcrumb && breadcrumb.routes ? renderBreadcrumb(breadcrumb) : null;
+    const defaultBreadcrumbDom =
+      breadcrumb && breadcrumb.routes ? renderBreadcrumb(breadcrumb) : null;
+    const breadcrumbDom = breadcrumbRender || defaultBreadcrumbDom;
     const className = [
       prefixCls,
       {
