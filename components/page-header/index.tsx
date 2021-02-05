@@ -123,7 +123,7 @@ const PageHeader = defineComponent({
     const prefixCls = getPrefixCls('page-header', customizePrefixCls);
     const defaultBreadcrumbDom =
       breadcrumb && breadcrumb.routes ? renderBreadcrumb(breadcrumb) : null;
-    const breadcrumbDom = breadcrumbRender || defaultBreadcrumbDom;
+    const breadcrumbDom = (breadcrumbRender.length > 0 && breadcrumbRender) || defaultBreadcrumbDom;
     const className = [
       prefixCls,
       {
