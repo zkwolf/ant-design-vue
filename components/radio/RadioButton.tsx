@@ -9,7 +9,7 @@ export default defineComponent({
   },
   setup(props, { slots }) {
     const { prefixCls } = useConfigInject('radio-button', props);
-    const radioGroupContext = inject<any>('radioGroupContext', {});
+    const radioGroupContext = inject<any>('radioGroupContext', undefined);
 
     return () => {
       const rProps: RadioProps = {
