@@ -7,11 +7,9 @@
     .reset-component();
 
     position: relative;
-    top: -0.09em;
-    display: inline-block;
+    top: 0.2em;
     line-height: 1;
     white-space: nowrap;
-    vertical-align: middle;
     outline: none;
     cursor: pointer;
 
@@ -47,6 +45,7 @@
       display: block;
       width: @checkbox-size;
       height: @checkbox-size;
+      direction: ltr;
       background-color: @checkbox-check-bg;
       border: @checkbox-border-width @border-style-base @border-color-base;
       border-radius: @border-radius-sm;
@@ -147,13 +146,22 @@
 
   .@{checkbox-prefix-cls}-wrapper {
     .reset-component();
-
-    display: inline-block;
+    display: inline-flex;
+    align-items: baseline;
     line-height: unset;
     cursor: pointer;
+
+    &::after {
+      display: inline-block;
+      width: 0;
+      overflow: hidden;
+      content: '\a0';
+    }
+
     &.@{checkbox-prefix-cls}-wrapper-disabled {
       cursor: not-allowed;
     }
+
     & + & {
       margin-left: 8px;
     }
@@ -166,11 +174,10 @@
 
   .@{checkbox-prefix-cls}-group {
     .reset-component();
-
     display: inline-block;
+
     &-item {
-      display: inline-block;
-      margin-right: 8px;
+      margin-right: @checkbox-group-item-margin-right;
       &:last-child {
         margin-right: 0;
       }
@@ -183,7 +190,7 @@
   // 半选状态
   .@{checkbox-prefix-cls}-indeterminate {
     .@{checkbox-inner-prefix-cls} {
-      background-color: @component-background;
+      background-color: @checkbox-check-bg;
       border-color: @border-color-base;
     }
     .@{checkbox-inner-prefix-cls}::after {
